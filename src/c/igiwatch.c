@@ -34,20 +34,20 @@ static char s_day_str[4];
 static char s_mon_str[8];
 static char s_full_date_str[20];
 
-static const char* DAYS_IT[] = {"Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"};
-static const char* MONTHS_IT[] = {"Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"};
+static const char* DAYS_IT[] = {"DOM", "LUN", "MAR", "MER", "GIO", "VEN", "SAB"};
+static const char* MONTHS_IT[] = {"GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"};
 
-static const char* DAYS_EN[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-static const char* MONTHS_EN[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+static const char* DAYS_EN[] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
+static const char* MONTHS_EN[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
-static const char* DAYS_FR[] = {"Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"};
-static const char* MONTHS_FR[] = {"Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"};
+static const char* DAYS_FR[] = {"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"};
+static const char* MONTHS_FR[] = {"JAN", "FÉV", "MAR", "AVR", "MAI", "JUI", "JUL", "AOÛ", "SEP", "OCT", "NOV", "DÉC"};
 
-static const char* DAYS_DE[] = {"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"};
-static const char* MONTHS_DE[] = {"Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"};
+static const char* DAYS_DE[] = {"SO", "MO", "DI", "MI", "DO", "FR", "SA"};
+static const char* MONTHS_DE[] = {"JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"};
 
-static const char* DAYS_ES[] = {"Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"};
-static const char* MONTHS_ES[] = {"Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"};
+static const char* DAYS_ES[] = {"DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"};
+static const char* MONTHS_ES[] = {"ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"};
 
 static void update_time() {
   time_t temp = time(NULL);
@@ -193,17 +193,17 @@ static void layer_update_proc(Layer *layer, GContext *ctx) {
     if (s_current_angle == TRIG_MAX_ANGLE / 4) { // 90 deg
         text_rotation = TRIG_MAX_ANGLE * 3 / 4; // 270 deg
         text_pos.x = INT_TO_FIXED(0);
-        text_pos.y = INT_TO_FIXED(bounds.size.h + 2);
+        text_pos.y = INT_TO_FIXED(bounds.size.h + 4); // Abbassato di 2 pixel
         font_size = 96;
     } else if (s_current_angle == TRIG_MAX_ANGLE * 3 / 4) { // 270 deg
         text_rotation = TRIG_MAX_ANGLE / 4; // 90 deg
         text_pos.x = INT_TO_FIXED(bounds.size.w);
-        text_pos.y = INT_TO_FIXED(2);
+        text_pos.y = INT_TO_FIXED(4); // Abbassato di 2 pixel
         font_size = 96;
     } else {
         text_rotation = 0;
         text_pos.x = INT_TO_FIXED(0);
-        text_pos.y = INT_TO_FIXED(0);
+        text_pos.y = INT_TO_FIXED(2); // Abbassato di 2 pixel
         font_size = 96;
     }
 
@@ -257,9 +257,9 @@ static void layer_update_proc(Layer *layer, GContext *ctx) {
     if (s_current_angle == TRIG_MAX_ANGLE / 2) { // Portrait
         // Use system font for portrait
         graphics_context_set_text_color(ctx, s_text_color);
-        GFont sys_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
-        GRect date_bounds = GRect(0, bounds.size.h - 30, bounds.size.w - 5, 30);
-        graphics_draw_text(ctx, s_full_date_str, sys_font, date_bounds, GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
+        GFont sys_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+        GRect date_bounds = GRect(0, bounds.size.h - 28, bounds.size.w, 32);
+        graphics_draw_text(ctx, s_full_date_str, sys_font, date_bounds, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
     } else { // Landscape
         date_font_size = 32;
         FPoint date_pos;
@@ -309,10 +309,6 @@ static void status_update_proc(Layer *layer, GContext *ctx) {
     return;
   }
 
-  // --- Battery Bar ---
-  int bar_len_h = (int)(((float)s_battery_level / 100.0F) * bounds.size.w);
-  int bar_len_v = (int)(((float)s_battery_level / 100.0F) * bounds.size.h);
-
   GColor bar_color;
   if (s_battery_level > 50) {
     bar_color = GColorJaegerGreen;
@@ -322,45 +318,52 @@ static void status_update_proc(Layer *layer, GContext *ctx) {
     bar_color = GColorRed;
   }
 
-  graphics_context_set_fill_color(ctx, bar_color);
-
-  GRect battery_bar_rect;
-  GRect battery_border_rect;
+  GRect battery_rect;
+  GRect terminal_rect;
+  GRect fill_rect;
+  GRect bt_rect;
 
   // --- Bluetooth Icon & Bar Positioning ---
   graphics_context_set_text_color(ctx, s_text_color); // Set text color for BT icon
 
-  if (s_current_angle == TRIG_MAX_ANGLE * 3 / 4) { // Left landscape
-    // Visual Right is Physical Bottom.
-    // Bar at Physical Bottom.
-    battery_bar_rect = GRect(0, bounds.size.h - 6, bar_len_h, 6);
-    battery_border_rect = GRect(0, bounds.size.h - 6, bounds.size.w, 6);
-    if (!s_bt_connected) {
-      graphics_draw_text(ctx, "BT", fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(0, bounds.size.h - 20, 20, 14), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
-    }
-  } else if (s_current_angle == TRIG_MAX_ANGLE / 4) { // Right landscape
-    // Visual Right is Physical Top.
-    // Bar at Physical Top.
-    battery_bar_rect = GRect(bounds.size.w - bar_len_h, 0, bar_len_h, 6);
-    battery_border_rect = GRect(0, 0, bounds.size.w, 6);
-    if (!s_bt_connected) {
-      graphics_draw_text(ctx, "BT", fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(bounds.size.w - 20, 6, 20, 14), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
-    }
+  if (s_current_angle == TRIG_MAX_ANGLE * 3 / 4) { // Landscape Sinistro
+    // L'angolo in alto a destra visuale corrisponde al basso a destra fisico
+    battery_rect = GRect(bounds.size.w - 24, bounds.size.h - 52, 20, 44);
+    terminal_rect = GRect(bounds.size.w - 18, bounds.size.h - 56, 8, 4);
+    bt_rect = GRect(bounds.size.w - 48, bounds.size.h - 18, 20, 14);
+  } else if (s_current_angle == TRIG_MAX_ANGLE / 4) { // Landscape Destro
+    // L'angolo in alto a destra visuale corrisponde all'alto a sinistra fisico
+    battery_rect = GRect(4, 8, 20, 44);
+    terminal_rect = GRect(10, 4, 8, 4);
+    bt_rect = GRect(28, 4, 20, 14);
   } else { // Portrait
-    // Visual Right is Physical Right.
-    battery_bar_rect = GRect(bounds.size.w - 6, bounds.size.h - bar_len_v, 6, bar_len_v);
-    battery_border_rect = GRect(bounds.size.w - 6, 0, 6, bounds.size.h);
-    if (!s_bt_connected) {
-      graphics_draw_text(ctx, "BT", fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(bounds.size.w - 25, 0, 20, 14), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
-    }
+    battery_rect = GRect(bounds.size.w - 24, 8, 20, 44);
+    terminal_rect = GRect(bounds.size.w - 18, 4, 8, 4);
+    bt_rect = GRect(bounds.size.w - 48, 4, 20, 14);
   }
 
-  // Draw the battery bar
+  // Calcola il riempimento basato sulla percentuale (altezza max 40px)
+  int fill_max_h = 40;
+  int fill_h = (fill_max_h * s_battery_level) / 100;
+  // Riempimento dal basso verso l'alto
+  fill_rect = GRect(battery_rect.origin.x + 2, 
+                    battery_rect.origin.y + 2 + (fill_max_h - fill_h), 
+                    16, fill_h);
+
+  // Draw battery frame and terminal
+  graphics_context_set_stroke_color(ctx, s_text_color);
+  graphics_draw_rect(ctx, battery_rect);
+  graphics_context_set_fill_color(ctx, s_text_color);
+  graphics_fill_rect(ctx, terminal_rect, 0, GCornerNone);
+
+  // Draw the battery fill
   graphics_context_set_fill_color(ctx, bar_color);
-  graphics_fill_rect(ctx, battery_bar_rect, 0, GCornerNone);
-  // Add a black border for better visibility
-  graphics_context_set_stroke_color(ctx, GColorBlack);
-  graphics_draw_rect(ctx, battery_border_rect);
+  graphics_fill_rect(ctx, fill_rect, 0, GCornerNone);
+
+  if (!s_bt_connected) {
+    graphics_draw_text(ctx, "BT", fonts_get_system_font(FONT_KEY_GOTHIC_14), bt_rect, GTextOverflowModeWordWrap, 
+                       (s_current_angle == TRIG_MAX_ANGLE / 4) ? GTextAlignmentLeft : GTextAlignmentRight, NULL);
+  }
 }
 
 static void battery_callback(BatteryChargeState charge) {
@@ -496,6 +499,40 @@ void Clock_deinit(void) {
 
 static Window *s_main_window;
 
+static void prv_vibrate_hour() {
+  time_t temp = time(NULL);
+  struct tm *tick_time = localtime(&temp);
+  int hour = tick_time->tm_hour % 12;
+  if (hour == 0) hour = 12;
+
+  int min = tick_time->tm_min;
+  int min_vibes = 0;
+  if (min > 45) min_vibes = 3;
+  else if (min > 30) min_vibes = 2;
+  else if (min > 15) min_vibes = 1;
+
+  uint32_t segments[30]; // Massimo 12h * 2 + 3m * 2 = 30 segmenti
+  int seg_idx = 0;
+  for (int i = 0; i < hour; i++) {
+    segments[seg_idx++] = 100;     // Vibrazione ora (100ms)
+    segments[seg_idx++] = 400;     // Pausa tra ore (400ms)
+  }
+
+  if (min_vibes > 0) {
+    segments[seg_idx - 1] = 600;   // Pausa lunga tra ore e minuti (600ms)
+    for (int i = 0; i < min_vibes; i++) {
+      segments[seg_idx++] = 200;   // Vibrazione minuti (200ms)
+      segments[seg_idx++] = 400;   // Pausa tra vibrazioni minuti (400ms)
+    }
+  }
+
+  VibePattern pat = {
+    .durations = segments,
+    .num_segments = (uint32_t)seg_idx,
+  };
+  vibes_enqueue_custom_pattern(pat);
+}
+
 static void main_window_load(Window *window) { Clock_init(window); }
 
 static void main_window_unload(Window *window) { Clock_deinit(); }
@@ -552,6 +589,9 @@ static void init(void) {
       (WindowHandlers){.load = main_window_load, .unload = main_window_unload});
   window_set_background_color(s_main_window, GColorBlack);
   window_stack_push(s_main_window, true);
+
+  // Vibra in base all'ora all'avvio
+  prv_vibrate_hour();
 }
 
 static void deinit(void) { window_destroy(s_main_window); }
