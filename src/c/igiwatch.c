@@ -502,6 +502,11 @@ static Window *s_main_window;
 static void prv_vibrate_hour() {
   time_t temp = time(NULL);
   struct tm *tick_time = localtime(&temp);
+  
+  if (!tick_time) {
+    return;
+  }
+
   int hour = tick_time->tm_hour % 12;
   if (hour == 0) hour = 12;
 
@@ -511,7 +516,10 @@ static void prv_vibrate_hour() {
   else if (min > 30) min_vibes = 2;
   else if (min > 15) min_vibes = 1;
 
-  uint32_t segments[30]; // Massimo 12h * 2 + 3m * 2 = 30 segmenti
+  // L'array deve essere static affinché rimanga valido in memoria
+  // dopo che la funzione è terminata, dato che vibes_enqueue_custom_pattern
+  // non copia i dati ma usa solo il puntatore.
+  static uint32_t segments[30];
   int seg_idx = 0;
   for (int i = 0; i < hour; i++) {
     segments[seg_idx++] = 100;     // Vibrazione ora (100ms)
